@@ -10,7 +10,6 @@ class RoleController extends Controller
 {
     public function list(){
         try {
-            dd('aq');
             $roles = Roles::all();
             $response = response()->json([
                 'status' => 200,
@@ -24,5 +23,6 @@ class RoleController extends Controller
                 'message' => 'error'
             ]);
         }
+        return $response;
     }
 }

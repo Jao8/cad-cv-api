@@ -104,7 +104,7 @@ class CurriculumController extends Controller
                     $curriculum->district = $req->district;
                     $curriculum->address = $req->address;
                     $curriculum->phone = $req->phone;
-                    $curriculum->role = $req->role;
+                    $curriculum->role_id = $req->role;
                     $curriculum->experience = $req->xp;
 
 
@@ -172,7 +172,7 @@ class CurriculumController extends Controller
                         $curriculum->district = $req->district;
                         $curriculum->address = $req->address;
                         $curriculum->phone = $req->phone;
-                        $curriculum->role = $req->role;
+                        $curriculum->role_id = $req->role;
                         $curriculum->experience = $req->xp;
 
 
@@ -224,7 +224,7 @@ class CurriculumController extends Controller
             $user = auth()->user();
 
             if ($user->type_id == TypeEnum::ADMIN->value) {
-                $curriculums = Curriculums::where('user_id', $user->id)->get();
+                $curriculums = Curriculums::where('user_id', $user->id)->with('role')->get();
 
                 $response = response()->json([
                     'message' => 'success',
@@ -316,7 +316,7 @@ class CurriculumController extends Controller
             'district' => 'required|string|min:3|max:255',
             'cpf' => 'required|string',
             'cep' => 'required|string',
-            'role' => 'required|string|min:3|max:255',
+            'role' => 'required|int',
             'xp' => 'required|string|min:3',
             'birthDate' => 'required|date',
         ]);
