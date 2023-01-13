@@ -4,6 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Class CreateCurriculumsStatusTable - CurriculumsStatus Relational Table Migration
+ */
 return new class extends Migration
 {
     /**

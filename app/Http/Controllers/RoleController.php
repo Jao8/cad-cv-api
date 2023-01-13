@@ -6,8 +6,17 @@ use App\Models\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class RoleController - Controller for roles
+ * @package App\Http\Controllers
+ */
 class RoleController extends Controller
 {
+    /**
+     * List all roles
+     *
+     * @return Response $response
+     */
     public function list(){
         try {
             $roles = Roles::all();

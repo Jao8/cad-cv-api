@@ -24,6 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/login', AuthController::class);
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/roles', [RoleController::class, 'list']);
@@ -37,6 +39,3 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/action', [CurriculumController::class, 'action']);
     });
 });
-
-Route::post('/login', AuthController::class);
-

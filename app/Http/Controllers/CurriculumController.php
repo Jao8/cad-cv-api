@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Class CurriculumController - Controller for Curriculum
+ * @package App\Http\Controllers
+ */
 class CurriculumController extends Controller
 {
 
@@ -53,7 +57,6 @@ class CurriculumController extends Controller
                             'message' => 'success',
                             'status' => 200,
                         ]);
-
                     } else {
                         $response = response()->json([
                             'message' => 'invalid permissions',
