@@ -36,21 +36,30 @@ class CurriculumController extends Controller
                 $curriculum = Curriculums::find($req->curriculum_id);
 
                 if (!empty($curriculum)) {
-                    if($user->type_id == TypeEnum::MANAGER->value){
+                    if ($user->type_id == TypeEnum::MANAGER->value) {
                         DB::beginTransaction();
-                        $curriculumStatus = new CurriculumsStatus();
+                        if (CurriculumsStatus::where('curriculum_id', $curriculum->id)->exists()) {
+                            $curriculumStatus = CurriculumsStatus::where('curriculum_id', $curriculum->id)->first();
+                        } else {
+                            $curriculumStatus = new CurriculumsStatus();
+                        }
 
                         $curriculumStatus->curriculum_id = $curriculum->id;
-                        $curriculumStatus->status = $req->action == 'approve' ? 1 : 2;
+                        $curriculumStatus->status_id = $req->action == 'approve' ? 1 : 2;
 
                         $curriculumStatus->save();
+                        DB::commit();
+                        $response = response()->json([
+                            'message' => 'success',
+                            'status' => 200,
+                        ]);
+
                     } else {
                         $response = response()->json([
                             'message' => 'invalid permissions',
                             'status' => 401,
                         ]);
                     }
-
                 } else {
                     $response = response()->json([
                         'message' => 'not found',
@@ -65,6 +74,7 @@ class CurriculumController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             $response = response()->json([
                 'status' => 500,
@@ -205,6 +215,7 @@ class CurriculumController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             $response = response()->json([
                 'message' => 'error',
@@ -268,7 +279,7 @@ class CurriculumController extends Controller
                 'id' => 'required|numeric'
             ]);
 
-            if(!$validator->fails()){
+            if (!$validator->fails()) {
                 if ($user->type_id == TypeEnum::ADMIN->value) {
                     $curriculum = Curriculums::where('user_id', $user->id)->with('role')->find($curriculumId);
 
@@ -277,7 +288,7 @@ class CurriculumController extends Controller
                         'status' => 200,
                         'data' => $curriculum
                     ]);
-                }else if($user->type_id == TypeEnum::MANAGER->value){
+                } else if ($user->type_id == TypeEnum::MANAGER->value) {
                     $curriculum = Curriculums::with('role')->find($curriculumId);
 
                     $response = response()->json([
@@ -285,8 +296,7 @@ class CurriculumController extends Controller
                         'status' => 200,
                         'data' => $curriculum
                     ]);
-                }
-                else {
+                } else {
                     $response = response()->json([
                         'message' => 'invalid permissions',
                         'status' => 401,
@@ -299,7 +309,6 @@ class CurriculumController extends Controller
                     'data' => $validator->errors()
                 ]);
             }
-
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $response = response()->json([
@@ -324,7 +333,7 @@ class CurriculumController extends Controller
                 'id' => 'required|numeric'
             ]);
 
-            if(!$validator->fails()){
+            if (!$validator->fails()) {
                 if ($user->type_id == TypeEnum::MANAGER->value) {
                     $curriculum = Curriculums::find($curriculumId);
 
@@ -347,14 +356,13 @@ class CurriculumController extends Controller
                         'status' => 401,
                     ]);
                 }
-            }else {
+            } else {
                 $response = response()->json([
                     'message' => 'invalid data',
                     'status' => 400,
                     'data' => $validator->errors()
                 ]);
             }
-
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $response = response()->json([
