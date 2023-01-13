@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use \App\Http\Controllers\AuthController;
 use App\Http\Controllers\CurriculumController;
+use App\Http\Controllers\RoleController;
 
 use function GuzzleHttp\Promise\inspect;
 
@@ -24,11 +25,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get('/roles', [RoleController::class, 'list']);
+
     Route::group(['prefix' => 'cv'], function () {
         Route::post('/insert', [CurriculumController::class, 'insert']);
         Route::put('/update', [CurriculumController::class, 'update']);
         Route::get('/list', [CurriculumController::class, 'list']);
         Route::delete('/delete/{id}', [CurriculumController::class, 'delete']);
+        Route::post('/action', [CurriculumController::class, 'action']);
     });
 });
 

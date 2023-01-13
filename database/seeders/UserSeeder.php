@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * User Seeder.
      *
      * @return void
      */

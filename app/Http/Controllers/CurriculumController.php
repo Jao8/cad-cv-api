@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enum\Types as TypeEnum;
 use App\Models\Curriculums;
+use App\Models\CurriculumsStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,67 @@ use Illuminate\Support\Facades\Validator;
 
 class CurriculumController extends Controller
 {
+
+    /**
+     * Perform an action.
+     * Currently actions: approve, reject a Curriculum.
+     *
+     * @param Request $req
+     * @return Response $response
+     */
+    public function action(Request $req)
+    {
+        try {
+            $user = auth()->user();
+            $validator = Validator::make($req->all(), [
+                'curriculum_id' => 'required|integer',
+                'action' => 'required|string'
+            ]);
+
+            if (!$validator->fails()) {
+
+                $curriculum = Curriculums::find($req->curriculum_id);
+
+                if (!empty($curriculum)) {
+                    if($user->type_id == TypeEnum::MANAGER->value){
+                        DB::beginTransaction();
+                        $curriculumStatus = new CurriculumsStatus();
+
+                        $curriculumStatus->curriculum_id = $curriculum->id;
+                        $curriculumStatus->status = $req->action == 'approve' ? 1 : 2;
+
+                        $curriculumStatus->save();
+                    } else {
+                        $response = response()->json([
+                            'message' => 'invalid permissions',
+                            'status' => 401,
+                        ]);
+                    }
+
+                } else {
+                    $response = response()->json([
+                        'message' => 'not found',
+                        'status' => 404,
+                    ]);
+                }
+            } else {
+                $response = response()->json([
+                    'message' => 'invalid request',
+                    'status' => 400,
+                    'data' => $validator->errors()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $response = response()->json([
+                'status' => 500,
+                'message' => 'error'
+            ]);
+        }
+
+        return $response;
+    }
+
     /**
      * Insert a new curriculum.
      *
@@ -97,7 +159,7 @@ class CurriculumController extends Controller
                 if ($user->type_id == TypeEnum::ADMIN->value) {
 
                     $curriculum = Curriculums::find($req->id);
-                    if(!empty($curriculum)){
+                    if (!empty($curriculum)) {
                         DB::beginTransaction();
                         $curriculum->user_id = $user->id;
                         $curriculum->name = $req->name;
@@ -123,7 +185,7 @@ class CurriculumController extends Controller
                             'status' => 200,
                             'data' => $curriculum
                         ]);
-                    }else{
+                    } else {
                         $response = response()->json([
                             'message' => 'not found',
                             'status' => 404
@@ -142,7 +204,6 @@ class CurriculumController extends Controller
                     'data' => $validator->errors()
                 ]);
             }
-
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $response = response()->json([
@@ -164,6 +225,14 @@ class CurriculumController extends Controller
 
             if ($user->type_id == TypeEnum::ADMIN->value) {
                 $curriculums = Curriculums::where('user_id', $user->id)->get();
+
+                $response = response()->json([
+                    'message' => 'success',
+                    'status' => 200,
+                    'data' => $curriculums
+                ]);
+            } else if ($user->type_id == TypeEnum::ADMIN->value) {
+                $curriculums = Curriculums::with('user')->get();
 
                 $response = response()->json([
                     'message' => 'success',

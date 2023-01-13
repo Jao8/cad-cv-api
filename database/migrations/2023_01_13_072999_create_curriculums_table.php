@@ -26,12 +26,13 @@ return new class extends Migration
             $table->string('district');
             $table->string('address');
             $table->string('phone');
-            $table->string('role');
+            $table->unsignedBigInteger('role_id');
             $table->text('experience');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('role_id')->references('id')->on('roles');
         });
     }
 

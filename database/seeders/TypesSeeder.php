@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class TypesSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * User Types Seeder.
      *
      * @return void
      */
