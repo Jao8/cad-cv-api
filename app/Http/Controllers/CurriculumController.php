@@ -231,7 +231,7 @@ class CurriculumController extends Controller
                     'status' => 200,
                     'data' => $curriculums
                 ]);
-            } else if ($user->type_id == TypeEnum::ADMIN->value) {
+            } else if ($user->type_id == TypeEnum::MANAGER->value) {
                 $curriculums = Curriculums::with('user')->get();
 
                 $response = response()->json([
