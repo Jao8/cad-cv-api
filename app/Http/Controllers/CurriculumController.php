@@ -256,6 +256,61 @@ class CurriculumController extends Controller
     }
 
     /**
+     * Find a curriculum by id.
+     *
+     * @return Response $response
+     */
+    public function find($curriculumId)
+    {
+        try {
+            $user = auth()->user();
+            $validator = Validator::make(['id' => $curriculumId], [
+                'id' => 'required|numeric'
+            ]);
+
+            if(!$validator->fails()){
+                if ($user->type_id == TypeEnum::ADMIN->value) {
+                    $curriculum = Curriculums::where('user_id', $user->id)->with('role')->find($curriculumId);
+
+                    $response = response()->json([
+                        'message' => 'success',
+                        'status' => 200,
+                        'data' => $curriculum
+                    ]);
+                }else if($user->type_id == TypeEnum::MANAGER->value){
+                    $curriculum = Curriculums::with('role')->find($curriculumId);
+
+                    $response = response()->json([
+                        'message' => 'success',
+                        'status' => 200,
+                        'data' => $curriculum
+                    ]);
+                }
+                else {
+                    $response = response()->json([
+                        'message' => 'invalid permissions',
+                        'status' => 401,
+                    ]);
+                }
+            } else {
+                $response = response()->json([
+                    'message' => 'invalid data',
+                    'status' => 400,
+                    'data' => $validator->errors()
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $response = response()->json([
+                'message' => 'error',
+                'status' => 500,
+            ]);
+        }
+        return $response;
+    }
+
+    /**
      * Delete a curriculum.
      *
      * @param int $curriculumId
@@ -265,29 +320,41 @@ class CurriculumController extends Controller
     {
         try {
             $user = auth()->user();
+            $validator = Validator::make(['id' => $curriculumId], [
+                'id' => 'required|numeric'
+            ]);
 
-            if ($user->type_id == TypeEnum::ADMIN->value) {
-                $curriculum = Curriculums::find($curriculumId);
+            if(!$validator->fails()){
+                if ($user->type_id == TypeEnum::MANAGER->value) {
+                    $curriculum = Curriculums::find($curriculumId);
 
-                if (isset($curriculum)) {
-                    $curriculum->delete();
+                    if (isset($curriculum)) {
+                        $curriculum->delete();
 
-                    $response = response()->json([
-                        'message' => 'success',
-                        'status' => 200,
-                    ]);
+                        $response = response()->json([
+                            'message' => 'success',
+                            'status' => 200,
+                        ]);
+                    } else {
+                        $response = response()->json([
+                            'message' => 'curriculum not found',
+                            'status' => 404,
+                        ]);
+                    }
                 } else {
                     $response = response()->json([
-                        'message' => 'curriculum not found',
-                        'status' => 404,
+                        'message' => 'invalid permissions',
+                        'status' => 401,
                     ]);
                 }
-            } else {
+            }else {
                 $response = response()->json([
-                    'message' => 'invalid permissions',
-                    'status' => 401,
+                    'message' => 'invalid data',
+                    'status' => 400,
+                    'data' => $validator->errors()
                 ]);
             }
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $response = response()->json([

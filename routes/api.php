@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/insert', [CurriculumController::class, 'insert']);
         Route::put('/update', [CurriculumController::class, 'update']);
         Route::get('/list', [CurriculumController::class, 'list']);
+        Route::get('/find/{id}', [CurriculumController::class, 'find']);
         Route::delete('/delete/{id}', [CurriculumController::class, 'delete']);
         Route::post('/action', [CurriculumController::class, 'action']);
     });
