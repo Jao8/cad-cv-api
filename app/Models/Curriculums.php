@@ -12,7 +12,7 @@ class Curriculums extends Model
 
     public function status()
     {
-        return $this->hasOne(CurriculumsStatus::class, 'curriculum_id', 'id');
+        return $this->hasOneThrough(Status::class, CurriculumsStatus::class, 'curriculum_id', 'id', 'id', 'id');
     }
 
     public function user()

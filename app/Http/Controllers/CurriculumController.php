@@ -224,7 +224,7 @@ class CurriculumController extends Controller
             $user = auth()->user();
 
             if ($user->type_id == TypeEnum::ADMIN->value) {
-                $curriculums = Curriculums::where('user_id', $user->id)->with('role')->get();
+                $curriculums = Curriculums::where('user_id', $user->id)->with(['role', 'status'])->get();
 
                 $response = response()->json([
                     'message' => 'success',
@@ -232,7 +232,7 @@ class CurriculumController extends Controller
                     'data' => $curriculums
                 ]);
             } else if ($user->type_id == TypeEnum::MANAGER->value) {
-                $curriculums = Curriculums::with('user')->get();
+                $curriculums = Curriculums::with(['user', 'role', 'status'])->get();
 
                 $response = response()->json([
                     'message' => 'success',
